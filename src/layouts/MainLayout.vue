@@ -10,13 +10,11 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
+      <q-tabs align="left">
+        <q-route-tab :to="{ name: 'popup' }" label="Main" />
+        <q-route-tab :to="{ name: 'settings' }" label="Settings" />
+        <!-- <q-route-tab to="/page3" label="Page Three" /> -->
+      </q-tabs>
     </q-header>
 
     <q-drawer
@@ -46,6 +44,7 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
 import { ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 
@@ -103,4 +102,26 @@ const leftDrawerOpen = ref(false)
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+=======
+import { onMounted } from "vue";
+import { api } from "src/boot/axios";
+import { useSettingsStore } from "src/stores/settings-store";
+
+const $settings = useSettingsStore();
+
+async function getTransmissionID() {
+  let id = null;
+  await api.get($settings.apiUrl).catch((err) => {
+    if (err.response.status == 409) {
+      id = err.response.headers["x-transmission-session-id"];
+    }
+  });
+  return id;
+}
+
+onMounted(async () => {
+  const id = await getTransmissionID();
+  api.defaults.headers.common["x-transmission-session-id"] = id;
+});
+>>>>>>> f4c0baa (settings)
 </script>

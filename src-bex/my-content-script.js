@@ -1,20 +1,30 @@
 // Hooks added here have a bridge allowing communication between the BEX Content Script and the Quasar Application.
 // More info: https://quasar.dev/quasar-cli/developing-browser-extensions/content-hooks
 
-import { bexContent } from 'quasar/wrappers'
+const baseURL = "https://rutracker.org/forum";
 
-export default bexContent((/* bridge */) => {
-  // Hook into the bridge to listen for events sent from the client BEX.
-  /*
-  bridge.on('some.event', event => {
-    if (event.data.yourProp) {
-      // Access a DOM element from here.
-      // Document in this instance is the underlying website the contentScript runs on
-      const el = document.getElementById('some-id')
-      if (el) {
-        el.value = 'Quasar Rocks!'
-      }
-    }
-  })
-  */
-})
+export default bexContent((bridge) => {
+  bridge.on("torrent.getUrl", async ({ data, respond }) => {
+    const el = document.getElementsByClassName("dl-stub dl-link dl-topic");
+    const attr = el[0].getAttribute("href", 2);
+    let responseData = "ololo no async";
+    await fetch(`${baseURL}/${attr}`, {
+      method: "GET",
+    })
+      .then(async (response) => {
+        const header = response.headers.get("Content-Disposition");
+        const parts = header.split(";");
+        return {
+          name: decodeURIComponent(parts[2].split("=")[1]),
+          blob: await response.blob(),
+        };
+      })
+      .then((data) => {
+        console.log("content fetched");
+        console.log(data.name);
+        responseData = data;
+      });
+    bridge.send("back.torrent.setUrl", responseData);
+    respond();
+  });
+});
