@@ -3,7 +3,7 @@
 
   "options_page": "www/index.html#/",
   "browser_action": {
-    "default_popup": "www/index.html#/"
+    "default_popup": "www/index.html#/popup"
   },
 
   "icons": {
