@@ -22,7 +22,6 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
 
   bridge.on("back.torrent.setUrl", ({ data, respond }) => {
     bridge.send("torrent.setUrl", data);
-    console.log(`[bg] get back.torrent.setUrl ${data}`);
     respond();
   });
 });

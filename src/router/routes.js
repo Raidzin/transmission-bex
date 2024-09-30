@@ -1,10 +1,24 @@
 const routes = [
   {
     path: "/",
+    name: "main",
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("pages/IndexPage.vue") },
-      { path: "popup", component: () => import("pages/PopupPage.vue") },
+      {
+        path: "",
+        name: "index",
+        component: () => import("pages/IndexPage.vue"),
+      },
+      {
+        path: "popup",
+        name: "popup",
+        component: () => import("pages/PopupPage.vue"),
+      },
+      {
+        path: "settings",
+        name: "settings",
+        component: () => import("pages/SettingsPage.vue"),
+      },
     ],
   },
 
@@ -12,6 +26,7 @@ const routes = [
   // but you can also remove it
   {
     path: "/:catchAll(.*)*",
+    name: "404",
     component: () => import("pages/ErrorNotFound.vue"),
   },
 ];
