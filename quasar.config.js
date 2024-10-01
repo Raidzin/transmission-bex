@@ -13,7 +13,7 @@ export default configure((/* ctx */) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ["axios"],
+    boot: ["axios", "cyrilicRobotoFonts.js"],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],
@@ -28,7 +28,7 @@ export default configure((/* ctx */) => {
       // 'line-awesome',
       // "roboto-font-latin-ext", // this or either 'roboto-font', NEVER both!
 
-      "roboto-font", // optional, you are not bound to it
+      // "roboto-font", // optional, you are not bound to it
       "material-icons", // optional, you are not bound to it
     ],
 
@@ -190,7 +190,7 @@ export default configure((/* ctx */) => {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "transmission-bex",
+        appId: "transmission-ui",
       },
     },
 

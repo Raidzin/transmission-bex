@@ -14,13 +14,11 @@ export default bexContent((bridge) => {
         const header = response.headers.get("Content-Disposition");
         const parts = header.split(";");
         return {
-          name: decodeURIComponent(parts[2].split("=")[1]),
+          name: decodeURIComponent(parts[2].split("=")[1]).slice(7),
           blob: await response.blob(),
         };
       })
       .then((data) => {
-        console.log("content fetched");
-        console.log(data.name);
         responseData = data;
       });
     bridge.send("back.torrent.setUrl", responseData);

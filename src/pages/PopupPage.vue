@@ -1,20 +1,14 @@
 <template>
-  <q-page>
-    <q-spinner v-if="loading" class="absolute-center" size="2rem" />
+  <q-page class="row justify-center">
+    <q-spinner v-if="loading" size="3rem" class="q-mt-xl" />
     <div v-if="!loading" class="column q-gutter-sm q-pa-md">
       <q-card>
-        <q-card-section>
+        <q-card-section class="column" v-if="torrentFile.name">
           <span>Найден файл</span>
           <span class="text-bold"> {{ torrentFile.name }} </span>
         </q-card-section>
       </q-card>
-      <q-btn label="Найти" color="primary" @click="findOnPage" />
-      <q-btn
-        label="Отправить"
-        color="primary"
-        @click="sendFiletoTransmission"
-      />
-      <q-btn label="Тест" color="primary" @click="testTransmission" />
+      <q-btn label="Скачать" color="primary" @click="sendFiletoTransmission" />
       <span>{{ data }}</span>
     </div>
   </q-page>
@@ -56,7 +50,7 @@ async function sendFiletoTransmission() {
   const sendRequest = {
     method: "torrent-add",
     arguments: {
-      "download-dir": "/downloads/complete/Videos",
+      "download-dir": $settings.downloadDir,
       metainfo: rawBlobData,
     },
   };
@@ -73,19 +67,6 @@ async function sendFiletoTransmission() {
   });
 }
 
-async function testTransmission() {
-  await api
-    .post($settings.apiUrl, {
-      method: "torrent-get",
-      arguments: { fields: ["id", "name", "percentDone"] },
-    })
-    .then((response) => {
-      $q.notify({ message: response.status, type: "positive" });
-      data.value = response.data.arguments;
-      console.log(response);
-    });
-}
-
 async function findOnPage() {
   $q.bex.send("back.torrent.getUrl");
 }
@@ -99,5 +80,11 @@ $q.bex.on("torrent.setUrl", ({ data, respond }) => {
 onMounted(() => {
   loading.value = true;
   $q.bex.send("back.torrent.getUrl");
+  setTimeout(() => {
+    if (loading.value) {
+      $q.notify({ message: "Не удались найти ссылку", type: "negative" });
+      loading.value = false;
+    }
+  }, 3000);
 });
 </script>

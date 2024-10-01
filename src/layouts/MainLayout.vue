@@ -6,8 +6,8 @@
       </q-toolbar>
 
       <q-tabs align="left">
-        <q-route-tab :to="{ name: 'popup' }" label="Main" />
-        <q-route-tab :to="{ name: 'settings' }" label="Settings" />
+        <q-route-tab :to="{ name: 'popup' }" icon="home" />
+        <q-route-tab :to="{ name: 'settings' }" icon="settings" />
         <!-- <q-route-tab to="/page3" label="Page Three" /> -->
       </q-tabs>
     </q-header>
@@ -17,13 +17,15 @@
     </q-page-container>
 
     <q-footer elevated class="bg-grey-8 text-white">
-      <q-toolbar>
-        <q-toolbar-title class="row">
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
-          </q-avatar>
-          <div>by Raidzin</div>
-        </q-toolbar-title>
+      <q-toolbar class="row justify-end">
+        <q-btn
+          href="https://github.com/raidzin"
+          target="_blank"
+          label="by Raidzin"
+          no-caps
+          flat
+          color="light"
+        ></q-btn>
       </q-toolbar>
     </q-footer>
   </q-layout>
