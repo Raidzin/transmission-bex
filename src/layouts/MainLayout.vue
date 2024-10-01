@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
       <q-tabs align="left">
-        <q-route-tab :to="{ name: '' }" icon="home" />
+        <q-route-tab :to="{ name: 'index' }" icon="home" />
         <q-route-tab :to="{ name: 'settings' }" icon="settings" />
       </q-tabs>
     </q-header>
@@ -73,7 +73,9 @@ async function getTransmissionID() {
 }
 
 onMounted(async () => {
-  const id = await getTransmissionID();
-  api.defaults.headers.common["x-transmission-session-id"] = id;
+  if ($settings.isAuth) {
+    const id = await getTransmissionID();
+    api.defaults.headers.common["x-transmission-session-id"] = id;
+  }
 });
 </script>
