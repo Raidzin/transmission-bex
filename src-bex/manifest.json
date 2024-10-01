@@ -19,13 +19,18 @@
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://rutracker.org/forum/*"],
       "js": ["my-content-script.js"],
       "css": ["assets/content.css"]
     }
   ],
 
-  "permissions": ["<all_urls>", "storage", "tabs", "activeTab"],
+  "permissions": [
+    "https://rutracker.org/forum/*",
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
 
   "web_accessible_resources": ["*", "<all_urls>"],
 
