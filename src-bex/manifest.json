@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "options_page": "www/index.html#/",
+  "options_page": "www/index.html#/settings",
   "browser_action": {
     "default_popup": "www/index.html#/"
   },

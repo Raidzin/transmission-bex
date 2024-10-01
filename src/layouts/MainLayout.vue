@@ -11,9 +11,8 @@
           @click="toggleLeftDrawer"
         />
       <q-tabs align="left">
-        <q-route-tab :to="{ name: 'popup' }" icon="home" />
+        <q-route-tab :to="{ name: '' }" icon="home" />
         <q-route-tab :to="{ name: 'settings' }" icon="settings" />
-        <!-- <q-route-tab to="/page3" label="Page Three" /> -->
       </q-tabs>
     </q-header>
 
