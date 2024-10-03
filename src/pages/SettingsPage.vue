@@ -2,25 +2,38 @@
   <q-page padding class="q-gutter-sm">
     <q-input
       label="Логин"
+      outlined
       v-model="$settings.auth.username"
       @update:model-value="$settings.save()"
     ></q-input>
     <q-input
       label="Пароль"
+      outlined
       v-model="$settings.auth.password"
       type="password"
       @update:model-value="$settings.save()"
     ></q-input>
     <q-input
       label="Transmission API URL"
+      outlined
       v-model="$settings.apiUrl"
       @update:model-value="$settings.save()"
     ></q-input>
     <q-input
-      label="Transmission Download DIR"
+      label="Папка загрузки Transmission"
+      outlined
       v-model="$settings.downloadDir"
       @update:model-value="$settings.save()"
     ></q-input>
+    <q-select
+      label="Структура под-папок"
+      outlined
+      emit-value
+      map-options
+      v-model="$settings.downloadMode"
+      :options="downloadModeOptions"
+      @update:model-value="$settings.save()"
+    ></q-select>
     <q-page-sticky position="bottom-right" :offset="[10, 10]">
       <q-btn
         label="Тест"
@@ -41,6 +54,10 @@ import { ref } from "vue";
 const $settings = useSettingsStore();
 const $q = useQuasar();
 const testLoading = ref(false);
+const downloadModeOptions = ref([
+  { label: "Без подпапок", value: "single" },
+  { label: "Jellyfin", value: "jellyfin" },
+]);
 
 async function testTransmission() {
   testLoading.value = true;

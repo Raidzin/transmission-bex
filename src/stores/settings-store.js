@@ -6,11 +6,13 @@ import { computed, ref, watch } from "vue";
 const authKey = "authData";
 const apiUrlKey = "ApiUrl";
 const downloadDirKey = "downloadDir";
+const downloadModeKey = "downloadMode";
 
 export const useSettingsStore = defineStore("settings", () => {
   const localStorageAuth = LocalStorage.getItem(authKey);
   const localStorageApiUrl = LocalStorage.getItem(apiUrlKey);
-  const localStorageDowndloadDir = LocalStorage.getItem(downloadDirKey);
+  const localStorageDownloadDir = LocalStorage.getItem(downloadDirKey);
+  const localStorageDownloadMode = LocalStorage.getItem(downloadModeKey);
 
   if (
     localStorageAuth &&
@@ -23,8 +25,13 @@ export const useSettingsStore = defineStore("settings", () => {
   const auth = ref(
     localStorageAuth ? localStorageAuth : { username: null, password: null },
   );
-  const apiUrl = ref(localStorageApiUrl);
-  const downloadDir = ref(localStorageDowndloadDir);
+  const apiUrl = ref(localStorageApiUrl ? localStorageApiUrl : "");
+  const downloadDir = ref(
+    localStorageDownloadDir ? localStorageDownloadDir : "",
+  );
+  const downloadMode = ref(
+    localStorageDownloadMode ? localStorageDownloadMode : "single",
+  );
 
   const isAuth = computed(() => {
     return auth.value.username && auth.value.password;
@@ -34,7 +41,8 @@ export const useSettingsStore = defineStore("settings", () => {
     LocalStorage.setItem(authKey, auth.value);
     LocalStorage.setItem(apiUrlKey, apiUrl.value);
     LocalStorage.setItem(downloadDirKey, downloadDir.value);
+    LocalStorage.setItem(downloadModeKey, downloadMode.value);
     api.defaults.auth = auth.value;
   }
-  return { auth, apiUrl, downloadDir, isAuth, save };
+  return { auth, apiUrl, downloadDir, downloadMode, isAuth, save };
 });

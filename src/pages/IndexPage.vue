@@ -1,15 +1,49 @@
 <template>
   <q-page class="row justify-center">
     <q-spinner v-if="loading" size="3rem" class="q-mt-xl" />
-    <div v-if="!loading" class="column q-gutter-sm q-pa-md">
-      <q-card>
-        <q-card-section class="column" v-if="torrentFile.name">
-          <span>Найден файл</span>
-          <span class="text-bold"> {{ torrentFile.name }} </span>
-        </q-card-section>
-      </q-card>
+    <div v-if="!loading" class="column q-gutter-sm q-pa-md justify-between">
+      <div class="q-gutter-sm">
+        <q-card flat bordered>
+          <q-card-section class="column" v-if="torrentFile.name">
+            <span class="text-bold" style="font-size: large">
+              {{ torrentFile.name }}
+            </span>
+          </q-card-section>
+        </q-card>
+        <q-select
+          v-if="$settings.downloadMode == 'jellyfin'"
+          label="Тип контента"
+          outlined
+          emit-value
+          map-options
+          v-model="jellyfinContentType"
+          :options="jellyfinContentTypes"
+        >
+        </q-select>
+        <q-toggle
+          v-if="jellyfinContentType == 'shows'"
+          label="Конкретный сезон"
+          v-model="isShowSeason"
+        ></q-toggle>
+        <div
+          class="row no-wrap"
+          v-if="jellyfinContentType == 'shows' && isShowSeason"
+        >
+          <q-input
+            label="Название Сериала"
+            outlined
+            v-model="showTitle"
+            class="q-mr-sm"
+          ></q-input>
+          <q-input
+            label="Сезон"
+            outlined
+            v-model.number="showSeason"
+            type="number"
+          ></q-input>
+        </div>
+      </div>
       <q-btn label="Скачать" color="primary" @click="sendFiletoTransmission" />
-      <span>{{ data }}</span>
     </div>
   </q-page>
 </template>
@@ -24,8 +58,16 @@ const $q = useQuasar();
 const $settings = useSettingsStore();
 
 const loading = ref(true);
-const data = ref(null);
 const torrentFile = reactive({});
+
+const jellyfinContentType = ref("movies");
+const jellyfinContentTypes = ref([
+  { label: "Сериал", value: "shows" },
+  { label: "Фильм", value: "movies" },
+]);
+const isShowSeason = ref(false);
+const showTitle = ref("");
+const showSeason = ref(1);
 
 async function getTransmissionID() {
   let id = null;
@@ -43,14 +85,31 @@ function blobToBase64(blob) {
   });
 }
 
+function createJellyfinDir() {
+  if (!isShowSeason.value) {
+    return `${$settings.downloadDir}/${jellyfinContentType.value}`;
+  } else {
+    return `${$settings.downloadDir}/${jellyfinContentType.value}/${showTitle.value}/season-${showSeason.value}`;
+  }
+}
+
+function getDownloadDir() {
+  switch ($settings.downloadMode) {
+    case "single":
+      return $settings.downloadDir;
+    case "jellyfin":
+      return createJellyfinDir();
+  }
+}
+
 async function sendFiletoTransmission() {
-  const id = await getTransmissionID();
+  let downloadDir = getDownloadDir();
   const blobData = await blobToBase64(torrentFile.blob);
   const rawBlobData = blobData.split(",")[1].trim();
   const sendRequest = {
     method: "torrent-add",
     arguments: {
-      "download-dir": $settings.downloadDir,
+      "download-dir": downloadDir,
       metainfo: rawBlobData,
     },
   };
@@ -85,6 +144,6 @@ onMounted(() => {
       $q.notify({ message: "Не удались найти ссылку", type: "negative" });
       loading.value = false;
     }
-  }, 3000);
+  }, 5000);
 });
 </script>

@@ -1,6 +1,11 @@
 <template>
+<<<<<<< HEAD
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
+=======
+  <q-layout view="hHh lpR fFf" style="width: 400px; height: 666px">
+    <q-header elevated class="bg-primary text-white" height-hint="98">
+>>>>>>> ec8cc50 (jellyfin download mode)
       <q-toolbar>
         <q-btn
           flat
