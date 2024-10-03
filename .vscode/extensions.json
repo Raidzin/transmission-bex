@@ -2,9 +2,9 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "editorconfig.editorconfig",
     "vue.volar",
-    "wayou.vscode-todo-highlight"
+    "xabikos.javascriptsnippets",
+    "eamodio.gitlens"
   ],
   "unwantedRecommendations": [
     "octref.vetur",

@@ -22,7 +22,12 @@
       @update:model-value="$settings.save()"
     ></q-input>
     <q-page-sticky position="bottom-right" :offset="[10, 10]">
-      <q-btn label="Тест" @click="testTransmission" color="accent"></q-btn>
+      <q-btn
+        label="Тест"
+        @click="testTransmission"
+        color="accent"
+        :loading="testLoading"
+      ></q-btn>
     </q-page-sticky>
   </q-page>
 </template>
@@ -31,18 +36,69 @@
 import { useQuasar } from "quasar";
 import { api } from "src/boot/axios";
 import { useSettingsStore } from "src/stores/settings-store";
+import { ref } from "vue";
 
 const $settings = useSettingsStore();
 const $q = useQuasar();
+const testLoading = ref(false);
 
 async function testTransmission() {
-  await api
-    .post($settings.apiUrl, {
-      method: "torrent-get",
-      arguments: { fields: ["id", "name", "percentDone"] },
+  testLoading.value = true;
+  const promise = async () => {
+    await api.updateTransmissionID();
+    await api
+      .post($settings.apiUrl, {
+        method: "torrent-get",
+        arguments: { fields: ["id", "name", "percentDone"] },
+      })
+      .then((response) => {
+        if (response.data.result == "success") {
+          $q.notify({ message: "Подключение успешно!", type: "positive" });
+        } else {
+          $q.notify({
+            message: "Неизвестная ошибка!",
+            type: "negative",
+          });
+        }
+      });
+  };
+  await promise()
+    .catch((err) => {
+      console.error(err);
+      if (err.code == "ECONNABORTED") {
+        $q.notify({
+          message: `Нет ответа от сервера`,
+          type: "negative",
+        });
+        return;
+      }
+      if (!err.response) {
+        $q.notify({ message: `${err}`, type: "negative" });
+        return;
+      }
+      switch (err.response.status) {
+        case 401:
+          $q.notify({
+            message: "Неверный логин или пароль!",
+            type: "negative",
+          });
+          break;
+        case 404:
+          $q.notify({
+            message: "Неверный API URL!",
+            type: "negative",
+          });
+          break;
+        case _:
+          $q.notify({
+            message: "Неизвестная ошибка!",
+            type: "negative",
+          });
+          break;
+      }
     })
-    .then((response) => {
-      $q.notify({ message: "Подключение успешно!", type: "positive" });
+    .finally(() => {
+      testLoading.value = false;
     });
 }
 </script>

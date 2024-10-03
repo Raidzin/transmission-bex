@@ -58,24 +58,18 @@
 <script setup>
 import { onMounted } from "vue";
 import { api } from "src/boot/axios";
+import { useQuasar } from "quasar";
 import { useSettingsStore } from "src/stores/settings-store";
 
 const $settings = useSettingsStore();
-
-async function getTransmissionID() {
-  let id = null;
-  await api.get($settings.apiUrl).catch((err) => {
-    if (err.response.status == 409) {
-      id = err.response.headers["x-transmission-session-id"];
-    }
-  });
-  return id;
-}
+const $q = useQuasar();
 
 onMounted(async () => {
   if ($settings.isAuth) {
-    const id = await getTransmissionID();
-    api.defaults.headers.common["x-transmission-session-id"] = id;
+    await api.updateTransmissionID().catch((err) => {
+      console.error(err);
+      $q.notify({ message: "Проверьте настройки сервера!", type: "warning" });
+    });
   }
 });
 </script>
