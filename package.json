@@ -1,6 +1,6 @@
 {
   "name": "transmission-ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Transmission UI as browser plugin",
   "productName": "Transmission UI",
   "author": "Raidzin <60663550+Raidzin@users.noreply.github.com>",
