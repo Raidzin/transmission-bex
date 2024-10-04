@@ -1,11 +1,14 @@
 <template>
-  <q-page class="row justify-center">
+  <q-page padding class="row justify-center">
     <q-spinner v-if="loading" size="3rem" class="q-mt-xl" />
-    <div v-if="!loading" class="column q-gutter-sm q-pa-md justify-between">
+    <div v-if="!loading" class="column justify-between">
       <div class="q-gutter-sm">
         <q-card flat bordered>
           <q-card-section class="column" v-if="torrentFile.name">
-            <span class="text-bold" style="font-size: large">
+            <span
+              class="text-bold"
+              style="font-size: large; text-overflow: ellipsis"
+            >
               {{ torrentFile.name }}
             </span>
           </q-card-section>
