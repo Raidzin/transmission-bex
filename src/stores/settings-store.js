@@ -34,7 +34,7 @@ export const useSettingsStore = defineStore("settings", () => {
   );
 
   const isAuth = computed(() => {
-    return auth.value.username && auth.value.password;
+    return auth.value.username && auth.value.password && apiUrl;
   });
 
   function save() {

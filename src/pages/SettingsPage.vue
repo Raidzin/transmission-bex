@@ -34,7 +34,11 @@
       :options="downloadModeOptions"
       @update:model-value="$settings.save()"
     ></q-select>
-    <q-page-sticky position="bottom-right" :offset="[10, 10]">
+    <q-page-sticky
+      v-if="$settings.isAuth"
+      position="bottom-right"
+      :offset="[10, 10]"
+    >
       <q-btn
         label="Тест"
         @click="testTransmission"
