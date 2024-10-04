@@ -5,5 +5,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
-  "cSpell.language": "en,ru,ru-RU"
+  "cSpell.language": "en,ru,ru-RU",
+  "cSpell.words": ["jellyfin"]
 }

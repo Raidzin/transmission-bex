@@ -11,7 +11,7 @@
           </q-card-section>
         </q-card>
         <q-select
-          v-if="$settings.downloadMode == 'jellyfin'"
+          v-if="$settings.downloadMode.startsWith('jellyfin')"
           label="Тип контента"
           outlined
           emit-value
@@ -20,6 +20,11 @@
           :options="jellyfinContentTypes"
         >
         </q-select>
+        <q-toggle
+          v-if="$settings.downloadMode.endsWith('multiuser')"
+          label="Скачать в персональную папку"
+          v-model="isPersonalDownload"
+        ></q-toggle>
         <q-toggle
           v-if="jellyfinContentType == 'shows'"
           label="Конкретный сезон"
@@ -60,6 +65,7 @@ const $settings = useSettingsStore();
 const loading = ref(true);
 const torrentFile = reactive({});
 
+const isPersonalDownload = ref(true);
 const jellyfinContentType = ref("movies");
 const jellyfinContentTypes = ref([
   { label: "Сериал", value: "shows" },
@@ -69,14 +75,6 @@ const isShowSeason = ref(false);
 const showTitle = ref("");
 const showSeason = ref(1);
 
-async function getTransmissionID() {
-  let id = null;
-  await api.get($settings.apiUrl).catch((err) => {
-    id = err.response.headers["x-transmission-session-id"];
-  });
-  return id;
-}
-
 function blobToBase64(blob) {
   return new Promise((resolve, _) => {
     const reader = new FileReader();
@@ -85,11 +83,19 @@ function blobToBase64(blob) {
   });
 }
 
-function createJellyfinDir() {
-  if (!isShowSeason.value) {
-    return `${$settings.downloadDir}/${jellyfinContentType.value}`;
+function createMultiuserDir(baseDir) {
+  if (!isPersonalDownload.value) {
+    return `${baseDir}/all`;
   } else {
-    return `${$settings.downloadDir}/${jellyfinContentType.value}/${showTitle.value}/season-${showSeason.value}`;
+    return `${baseDir}/${$settings.downloadUsername}`;
+  }
+}
+
+function createJellyfinDir(baseDir) {
+  if (!isShowSeason.value) {
+    return `${baseDir}/${jellyfinContentType.value}`;
+  } else {
+    return `${baseDir}/${jellyfinContentType.value}/${showTitle.value}/season-${showSeason.value}`;
   }
 }
 
@@ -98,7 +104,9 @@ function getDownloadDir() {
     case "single":
       return $settings.downloadDir;
     case "jellyfin":
-      return createJellyfinDir();
+      return createJellyfinDir($settings.downloadDir);
+    case "jellyfin-multiuser":
+      return createJellyfinDir(createMultiuserDir($settings.downloadDir));
   }
 }
 

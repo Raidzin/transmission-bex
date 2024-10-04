@@ -34,6 +34,13 @@
       :options="downloadModeOptions"
       @update:model-value="$settings.save()"
     ></q-select>
+    <q-input
+      v-if="$settings.downloadMode == 'jellyfin-multiuser'"
+      label="Имя персональной папки"
+      outlined
+      v-model="$settings.downloadUsername"
+      @update:model-value="$settings.save()"
+    ></q-input>
     <q-page-sticky
       v-if="$settings.isAuth"
       position="bottom-right"
@@ -61,6 +68,7 @@ const testLoading = ref(false);
 const downloadModeOptions = ref([
   { label: "Без подпапок", value: "single" },
   { label: "Jellyfin", value: "jellyfin" },
+  { label: "Jellyfin многопользовательский", value: "jellyfin-multiuser" },
 ]);
 
 async function testTransmission() {

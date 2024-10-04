@@ -7,12 +7,15 @@ const authKey = "authData";
 const apiUrlKey = "ApiUrl";
 const downloadDirKey = "downloadDir";
 const downloadModeKey = "downloadMode";
+const downloadUsernameKey = "downloadUsername";
 
 export const useSettingsStore = defineStore("settings", () => {
   const localStorageAuth = LocalStorage.getItem(authKey);
   const localStorageApiUrl = LocalStorage.getItem(apiUrlKey);
   const localStorageDownloadDir = LocalStorage.getItem(downloadDirKey);
   const localStorageDownloadMode = LocalStorage.getItem(downloadModeKey);
+  const localStorageDownloadUsername =
+    LocalStorage.getItem(downloadUsernameKey);
 
   if (
     localStorageAuth &&
@@ -32,6 +35,9 @@ export const useSettingsStore = defineStore("settings", () => {
   const downloadMode = ref(
     localStorageDownloadMode ? localStorageDownloadMode : "single",
   );
+  const downloadUsername = ref(
+    localStorageDownloadUsername ? localStorageDownloadUsername : "",
+  );
 
   const isAuth = computed(() => {
     return auth.value.username && auth.value.password && apiUrl;
@@ -42,7 +48,19 @@ export const useSettingsStore = defineStore("settings", () => {
     LocalStorage.setItem(apiUrlKey, apiUrl.value);
     LocalStorage.setItem(downloadDirKey, downloadDir.value);
     LocalStorage.setItem(downloadModeKey, downloadMode.value);
+    LocalStorage.setItem(downloadUsernameKey, downloadUsername.value);
     api.defaults.auth = auth.value;
   }
-  return { auth, apiUrl, downloadDir, downloadMode, isAuth, save };
+  return {
+    // store
+    auth,
+    apiUrl,
+    downloadDir,
+    downloadMode,
+    downloadUsername,
+    // getters
+    isAuth,
+    // funcs
+    save,
+  };
 });
