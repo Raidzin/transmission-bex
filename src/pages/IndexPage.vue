@@ -51,7 +51,7 @@
           ></q-input>
         </div>
       </div>
-      <q-btn label="Скачать" color="primary" @click="sendFiletoTransmission" />
+      <q-btn label="Скачать" color="primary" @click="sendFileToTransmission" />
     </div>
   </q-page>
 </template>
@@ -113,7 +113,7 @@ function getDownloadDir() {
   }
 }
 
-async function sendFiletoTransmission() {
+async function sendFileToTransmission() {
   let downloadDir = getDownloadDir();
   const blobData = await blobToBase64(torrentFile.blob);
   const rawBlobData = blobData.split(",")[1].trim();
@@ -135,10 +135,6 @@ async function sendFiletoTransmission() {
     }
     $q.notify({ message: "Загрузка начата", type: "positive" });
   });
-}
-
-async function findOnPage() {
-  $q.bex.send("back.torrent.getUrl");
 }
 
 $q.bex.on("torrent.setUrl", ({ data, respond }) => {
