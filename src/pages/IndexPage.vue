@@ -1,78 +1,85 @@
 <template>
-  <q-page padding class="row justify-center">
-    <q-spinner v-if="loading" size="3rem" class="q-mt-xl" />
-    <div v-if="!loading" class="column justify-between">
-      <div class="q-gutter-sm">
-        <q-card flat bordered>
-          <q-card-section class="column" v-if="torrentFile.name">
-            <span
-              class="text-bold"
-              style="font-size: large; text-overflow: ellipsis"
-            >
-              {{ torrentFile.name }}
-            </span>
-          </q-card-section>
-        </q-card>
-        <q-select
-          v-if="$settings.downloadMode.startsWith('jellyfin')"
-          label="Тип контента"
+  <q-page padding class="column q-gutter-sm">
+    <div class="row full-width justify-center">
+      <q-spinner v-if="torrentFiles.length == 0" size="3rem" class="q-mt-xl" />
+    </div>
+    <TorrentFile
+      v-for="torrentFile in torrentFiles"
+      :torrentFile="torrentFile"
+      :key="torrentFile.name"
+    />
+    <div v-if="torrentFiles.length != 0">
+      <q-select
+        v-if="$settings.downloadMode.startsWith('jellyfin')"
+        label="Тип контента"
+        outlined
+        emit-value
+        map-options
+        v-model="jellyfinContentType"
+        :options="jellyfinContentTypes"
+      >
+      </q-select>
+      <q-toggle
+        v-if="$settings.downloadMode.endsWith('multiuser')"
+        label="Скачать в персональную папку"
+        v-model="isPersonalDownload"
+      ></q-toggle>
+      <q-toggle
+        v-if="jellyfinContentType == 'shows'"
+        label="Конкретный сезон"
+        v-model="isShowSeason"
+      ></q-toggle>
+      <div
+        class="row no-wrap"
+        v-if="jellyfinContentType == 'shows' && isShowSeason"
+      >
+        <q-input
+          label="Название Сериала"
           outlined
-          emit-value
-          map-options
-          v-model="jellyfinContentType"
-          :options="jellyfinContentTypes"
-        >
-        </q-select>
-        <q-toggle
-          v-if="$settings.downloadMode.endsWith('multiuser')"
-          label="Скачать в персональную папку"
-          v-model="isPersonalDownload"
-        ></q-toggle>
-        <q-toggle
-          v-if="jellyfinContentType == 'shows'"
-          label="Конкретный сезон"
-          v-model="isShowSeason"
-        ></q-toggle>
-        <div
-          class="row no-wrap"
-          v-if="jellyfinContentType == 'shows' && isShowSeason"
-        >
-          <q-input
-            label="Название Сериала"
-            outlined
-            v-model="showTitle"
-            class="q-mr-sm"
-          ></q-input>
-          <q-input
-            label="Сезон"
-            outlined
-            v-model.number="showSeason"
-            type="number"
-          ></q-input>
-        </div>
+          v-model="showTitle"
+          class="q-mr-sm"
+        ></q-input>
+        <q-input
+          label="Сезон"
+          outlined
+          v-model.number="showSeason"
+          type="number"
+        ></q-input>
       </div>
-      <q-btn label="Скачать" color="primary" @click="sendFileToTransmission" />
     </div>
   </q-page>
+  <q-page-sticky
+    v-if="torrentFiles.length != 0"
+    position="bottom"
+    :offset="[10, 10]"
+  >
+    <q-btn
+      icon="download"
+      label="Скачать"
+      color="primary"
+      @click="sendFileToTransmission"
+    />
+  </q-page-sticky>
 </template>
 
 <script setup>
 import { ref, onMounted, reactive } from "vue";
 import { useQuasar } from "quasar";
 import { api } from "src/boot/axios";
+import TorrentFile from "src/components/TorrentFile.vue";
 import { useSettingsStore } from "src/stores/settings-store";
 
 const $q = useQuasar();
 const $settings = useSettingsStore();
 
-const loading = ref(true);
-const torrentFile = reactive({});
+const torrentFiles = ref([]);
 
 const isPersonalDownload = ref(true);
 const jellyfinContentType = ref("movies");
 const jellyfinContentTypes = ref([
   { label: "Сериал", value: "shows" },
   { label: "Фильм", value: "movies" },
+  { label: "Музыка", value: "music" },
 ]);
 const isShowSeason = ref(false);
 const showTitle = ref("");
@@ -115,42 +122,41 @@ function getDownloadDir() {
 
 async function sendFileToTransmission() {
   let downloadDir = getDownloadDir();
-  const blobData = await blobToBase64(torrentFile.blob);
-  const rawBlobData = blobData.split(",")[1].trim();
-  const sendRequest = {
-    method: "torrent-add",
-    arguments: {
-      "download-dir": downloadDir,
-      metainfo: rawBlobData,
-    },
-  };
-  await api.post($settings.apiUrl, sendRequest).then((response) => {
-    console.log(response);
-    if (response.data.result != "success") {
-      $q.notify({
-        message: `[Ошибка] ${response.data.result}`,
-        type: "negative",
-      });
-      return;
-    }
-    $q.notify({ message: "Загрузка начата", type: "positive" });
+  let promises = [];
+  torrentFiles.value.forEach(async (torrentFile) => {
+    const blobData = await blobToBase64(torrentFile.blob);
+    const rawBlobData = blobData.split(",")[1].trim();
+    const sendRequest = {
+      method: "torrent-add",
+      arguments: {
+        "download-dir": downloadDir,
+        metainfo: rawBlobData,
+      },
+    };
+    promises.push(
+      api.post($settings.apiUrl, sendRequest).then((response) => {
+        console.log(response);
+        if (response.data.result != "success") {
+          $q.notify({
+            message: `[Ошибка] ${response.data.result}`,
+            type: "negative",
+          });
+          return;
+        }
+        $q.notify({ message: "Загрузка начата", type: "positive" });
+      }),
+    );
   });
+
+  await Promise.all(promises);
 }
 
 $q.bex.on("torrent.setUrl", ({ data, respond }) => {
-  Object.assign(torrentFile, data);
-  loading.value = false;
+  torrentFiles.value.push(data);
   respond();
 });
 
 onMounted(() => {
-  loading.value = true;
   $q.bex.send("back.torrent.getUrl");
-  setTimeout(() => {
-    if (loading.value) {
-      $q.notify({ message: "Не удались найти ссылку", type: "negative" });
-      loading.value = false;
-    }
-  }, 5000);
 });
 </script>

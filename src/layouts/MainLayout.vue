@@ -15,7 +15,7 @@
     </q-page-container>
 
     <q-footer elevated class="bg-grey-8 text-white">
-      <q-toolbar class="row justify-end">
+      <q-toolbar class="row">
         <q-btn
           href="https://github.com/Raidzin/transmission-ui"
           target="_blank"
@@ -24,6 +24,8 @@
           flat
           color="light"
         ></q-btn>
+        <q-space />
+        <div>v{{ version }}</div>
       </q-toolbar>
     </q-footer>
   </q-layout>
@@ -34,6 +36,7 @@ import { onMounted } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 import { useSettingsStore } from "src/stores/settings-store";
+import { version } from "../../package.json";
 
 const $settings = useSettingsStore();
 const $q = useQuasar();
